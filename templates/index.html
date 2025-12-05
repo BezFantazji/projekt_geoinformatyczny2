@@ -2,38 +2,39 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stan powietrza w Polsce</title>
+    <title>Jakość powietrza</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Aktualny stan powietrza w Polsce 🌤️</h1>
-    </header>
-    <main>
-        <div class="stations">
-            {% if stations %}
-                {% for station in stations %}
-                    <div class="station-card">
-                        <h2>{{ station.name }} ({{ station.city }})</h2>
-                        {% if station.measurements %}
-                            <ul>
-                                {% for m in station.measurements %}
-                                    <li>
-                                        <strong>{{ m.param }}:</strong> {{ m.value }} 
-                                        {% if m.date %} <em>({{ m.date[:16] }})</em> {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>Brak dostępnych danych pomiarowych</p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p>Brak dostępnych stacji</p>
-            {% endif %}
-        </div>
-    </main>
+    <h1>Jakość powietrza w Polsce</h1>
+
+    <h2>Wybierz stację:</h2>
+    <ul>
+        {% for station in stations %}
+            <li>
+                <a href="{{ url_for('get_station_data', station_id=station.id) }}">
+                    {{ station.stationName }} ({{ station.city.name }})
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if data %}
+        <h2>Dane dla stacji ID: {{ station_id }}</h2>
+        <table>
+            <tr>
+                <th>Parametr</th>
+                <th>Wartość</th>
+                <th>Data pomiaru</th>
+            </tr>
+            {% for item in data.values %}
+            <tr>
+                <td>{{ item.key }}</td>
+                <td>{{ item.value.value if item.value else 'Brak danych' }}</td>
+                <td>{{ item.date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
 </body>
 </html>
