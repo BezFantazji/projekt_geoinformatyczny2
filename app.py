@@ -2,7 +2,7 @@ from flask import Flask, render_template
 import requests
 
 app = Flask(__name__)
-BASE_URL = "https://api.gios.gov.pl/pjp-api/rest"
+BASE_URL = "https://api.gios.gov.pl/pjp-api/v1/rest/aqindex/getIndex/52"
 
 @app.route("/")
 def index():
