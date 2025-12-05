@@ -1,41 +1,60 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, abort
 import requests
 
 app = Flask(__name__)
-BASE_URL = "https://api.gios.gov.pl/pjp-api/v1/rest/aqindex/getIndex/52"
+BASE_URL = "https://api.gios.gov.pl/pjp-api/v1"
+
+def fetch_json(url):
+    """Pomocnicza funkcja do pobierania danych JSON z API."""
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException:
+        return None
 
 @app.route("/")
 def index():
-    stations_url = f"{BASE_URL}/station/findAll"
-    response = requests.get(stations_url)
-    stations = response.json() if response.status_code == 200 else []
-    return render_template("index.html", stations=stations)
+    """Wyświetla listę wszystkich stacji wraz z indeksem jakości powietrza."""
+    stations = fetch_json(f"{BASE_URL}/station/findAll")
+    if not stations:
+        abort(500, description="Nie udało się pobrać listy stacji")
 
-@app.route("/data/<int:station_id>")
-def get_station_data(station_id):
-    # Pobranie listy sensorów dla stacji
-    sensors_url = f"{BASE_URL}/station/sensors/{station_id}"
-    sensors_response = requests.get(sensors_url)
-    if sensors_response.status_code != 200:
-        return "Błąd pobierania sensorów"
+    # Pobranie indeksów jakości powietrza dla każdej stacji
+    stations_data = []
+    for station in stations:
+        station_id = station.get("id")
+        index_data = fetch_json(f"{BASE_URL}/aqindex/getIndex/{station_id}")
+        stations_data.append({
+            "id": station_id,
+            "stationName": station.get("stationName"),
+            "city": station.get("city", {}).get("name"),
+            "province": station.get("city", {}).get("province", {}).get("name"),
+            "aqIndex": index_data.get("stIndexLevel", {}).get("indexLevelName") if index_data else "Brak danych"
+        })
 
-    sensors = sensors_response.json()
-    data_list = []
+    return render_template("index.html", stations=stations_data)
 
-    # Pobranie danych dla każdego sensora
-    for sensor in sensors:
-        sensor_id = sensor["id"]
-        data_url = f"{BASE_URL}/data/getData/{sensor_id}"
-        data_response = requests.get(data_url)
-        if data_response.status_code == 200:
-            sensor_data = data_response.json()
-            # Dodanie nazwy parametru do danych
-            data_list.append({
-                "param": sensor["param"]["paramName"],
-                "values": sensor_data.get("values", [])
-            })
+@app.route("/station/<int:station_id>")
+def station_details(station_id):
+    """Wyświetla szczegółowe dane dla wybranej stacji."""
+    station = fetch_json(f"{BASE_URL}/station/sensors/{station_id}")
+    if station is None:
+        abort(404, description="Stacja nie istnieje lub brak danych sensorów")
 
-    return render_template("index.html", data=data_list, station_id=station_id)
+    sensors_data = []
+    for sensor in station:
+        sensor_id = sensor.get("id")
+        sensor_data = fetch_json(f"{BASE_URL}/data/getData/{sensor_id}")
+        sensors_data.append({
+            "param": sensor.get("param", {}).get("paramName"),
+            "values": sensor_data.get("values", []) if sensor_data else []
+        })
+
+    index_data = fetch_json(f"{BASE_URL}/aqindex/getIndex/{station_id}")
+    aq_index = index_data.get("stIndexLevel", {}).get("indexLevelName") if index_data else "Brak danych"
+
+    return render_template("station.html", station_id=station_id, sensors=sensors_data, aq_index=aq_index)
 
 if __name__ == "__main__":
     app.run(debug=True)
