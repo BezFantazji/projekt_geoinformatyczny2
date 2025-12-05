@@ -7,20 +7,23 @@ app = Flask(__name__)
 BASE_URL = "https://api.gios.gov.pl/pjp-api/v1/rest"
 
 def get_stations():
-    """Pobierz listę wszystkich stacji pomiarowych z API GIOŚ."""
     try:
-        resp = requests.get(f"{BASE_URL}/station/findAll", timeout=10)
+        resp = requests.get(f"{BASE_URL}/station/findAll", params={"page":1, "size":500}, timeout=10)
         resp.raise_for_status()
         data = resp.json()
-        # oczekujemy listy stacji
+        # Jeśli API opakowuje dane inaczej — np. pod kluczem "data" lub "results"
         if isinstance(data, list):
             return data
-        else:
-            # API zwróciło coś innego
-            return []
+        # jeśli to dict z kluczem 'data' albo 'results', rozpakuj
+        if isinstance(data, dict):
+            for key in ("data", "results", "stations"):
+                if key in data and isinstance(data[key], list):
+                    return data[key]
+        return []
     except Exception as e:
         print("Błąd pobierania stacji:", e)
         return []
+
 
 def get_sensors(station_id):
     """Pobierz listę sensorów dla danej stacji."""
