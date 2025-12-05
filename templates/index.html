@@ -1,0 +1,30 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Jakość powietrza w Polsce</title>
+</head>
+<body>
+    <h1>Stan powietrza — Polska</h1>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Miasto</th>
+            <th>Stacja</th>
+            <th>PM10</th>
+            <th>PM2.5</th>
+            <th>Ogólna jakość</th>
+        </tr>
+
+        {% for row in data %}
+        <tr>
+            <td>{{ row.city }}</td>
+            <td>{{ row.station }}</td>
+            <td>{{ row.pm10 }}</td>
+            <td>{{ row.pm25 }}</td>
+            <td>{{ row.overall }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>
