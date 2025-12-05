@@ -1,40 +1,18 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Jakość powietrza</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Stacje pomiarowe</title>
 </head>
 <body>
-    <h1>Jakość powietrza w Polsce</h1>
-
-    <h2>Wybierz stację:</h2>
+    <h1>Stacje pomiarowe</h1>
     <ul>
         {% for station in stations %}
-            <li>
-                <a href="{{ url_for('get_station_data', station_id=station.id) }}">
-                    {{ station.stationName }} ({{ station.city.name }})
-                </a>
-            </li>
+        <li>
+            <a href="{{ url_for('station_details', station_id=station.id) }}">
+                {{ station.stationName }} ({{ station.city }}, {{ station.province }})
+            </a> - AQI: {{ station.aqIndex }}
+        </li>
         {% endfor %}
     </ul>
-
-    {% if data %}
-        <h2>Dane dla stacji ID: {{ station_id }}</h2>
-        <table>
-            <tr>
-                <th>Parametr</th>
-                <th>Wartość</th>
-                <th>Data pomiaru</th>
-            </tr>
-            {% for item in data.values %}
-            <tr>
-                <td>{{ item.key }}</td>
-                <td>{{ item.value.value if item.value else 'Brak danych' }}</td>
-                <td>{{ item.date }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
 </body>
 </html>
