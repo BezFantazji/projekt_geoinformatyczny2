@@ -1,38 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="utf-8">
-    <title>Jakość powietrza — Polska (live)</title>
-    <style>
-        body { font-family: Arial; padding: 30px; }
-        select, button { padding: 8px; margin: 8px; }
-        .card { padding: 15px; margin-top: 20px; background: #f5f5f5; border-radius: 8px; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stan powietrza w Polsce</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
-<h1>Jakość powietrza w Polsce — LIVE</h1>
-
-<form action="" method="get">
-    <label for="station">Wybierz stację:</label>
-    <select id="station" onchange="location='/stacja/' + this.value">
-        <option value="">-- wybierz --</option>
-        {% for s in stations %}
-            <option value="{{ s.id }}">{{ s.stationName }} ({{ s.city.name }})</option>
-        {% endfor %}
-    </select>
-</form>
-
-<div class="card">
-    <h2>Lista stacji ({{ stations|length }})</h2>
-    <ul>
-        {% for s in stations %}
-            <li>
-                <a href="/stacja/{{ s.id }}">{{ s.stationName }} — {{ s.city.name }}</a>
-            </li>
-        {% endfor %}
-    </ul>
-</div>
-
+    <header>
+        <h1>Aktualny stan powietrza w Polsce 🌤️</h1>
+    </header>
+    <main>
+        <div class="stations">
+            {% for station in stations %}
+            <div class="station-card">
+                <h2>{{ station.name }} ({{ station.city }})</h2>
+                {% if station.air_quality %}
+                <ul>
+                    {% for item in station.air_quality %}
+                    <li><strong>{{ item.param }}:</strong> {{ item.value }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>Brak danych</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </main>
 </body>
 </html>
