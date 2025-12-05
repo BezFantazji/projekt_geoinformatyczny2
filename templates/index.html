@@ -12,20 +12,27 @@
     </header>
     <main>
         <div class="stations">
-            {% for station in stations %}
-            <div class="station-card">
-                <h2>{{ station.name }} ({{ station.city }})</h2>
-                {% if station.air_quality %}
-                <ul>
-                    {% for item in station.air_quality %}
-                    <li><strong>{{ item.param }}:</strong> {{ item.value }}</li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p>Brak danych</p>
-                {% endif %}
-            </div>
-            {% endfor %}
+            {% if stations %}
+                {% for station in stations %}
+                    <div class="station-card">
+                        <h2>{{ station.name }} ({{ station.city }})</h2>
+                        {% if station.measurements %}
+                            <ul>
+                                {% for m in station.measurements %}
+                                    <li>
+                                        <strong>{{ m.param }}:</strong> {{ m.value }} 
+                                        {% if m.date %} <em>({{ m.date[:16] }})</em> {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>Brak dostępnych danych pomiarowych</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Brak dostępnych stacji</p>
+            {% endif %}
         </div>
     </main>
 </body>
