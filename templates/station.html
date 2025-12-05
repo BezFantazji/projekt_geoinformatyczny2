@@ -1,63 +1,21 @@
 <!doctype html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Stacja - szczegóły</title>
-  <link href="https://cdn.jsdelivr.net/npm/modern-normalize/modern-normalize.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 18px; }
-    .card { border:1px solid #ddd; padding:12px; border-radius:8px; margin-top:12px; }
-    table { border-collapse: collapse; width:100%;}
-    td, th { padding:8px; border-bottom: 1px solid #eee; text-align:left; }
-    .error { color: darkred; background:#ffecec; padding:8px; border-radius:6px; }
-  </style>
+    <meta charset="utf-8">
+    <title>Sensory stacji</title>
 </head>
 <body>
-  <a href="/">← powrót</a>
-  {% if error %}
-    <div class="error card"><strong>Błąd:</strong> {{ error }}</div>
-  {% else %}
-    <h1>Stacja: {{ station.get('stationName') or station.get('name') or station.get('station') or '–' }}</h1>
-    <div class="card">
-      <strong>Informacje o stacji</strong>
-      <table>
-        <tr><th>Nazwa</th><td>{{ station.get('stationName') or station.get('name') }}</td></tr>
-        <tr><th>Adres / Miasto</th><td>
-            {% if station.get('city') and station.get('city').get('name') %}
-              {{ station.get('city').get('name') }}
-            {% else %}
-              {{ station.get('addressStreet') or station.get('cityName') or '—' }}
-            {% endif %}
-        </td></tr>
-        <tr><th>ID</th><td>{{ station.get('id') or station.get('stationId') }}</td></tr>
-      </table>
-    </div>
+<h1>Sensory stacji {{ station_id }}</h1>
 
-    <div class="card">
-      <strong>Wskaźnik jakości powietrza (index)</strong>
-      <pre>{{ index }}</pre>
-    </div>
+<ul>
+    {% for s in sensors %}
+        <li>
+            {{ s.param.paramName }}:
+            <a href="/sensor/{{ s.id }}">pomiary</a>
+        </li>
+    {% endfor %}
+</ul>
 
-    <div class="card">
-      <strong>Aktualne odczyty sensorów</strong>
-      {% if sensor_error %}
-        <div class="error">{{ sensor_error }}</div>
-      {% endif %}
-      <table>
-        <thead><tr><th>Parametr</th><th>Wartość</th><th>Data pomiaru</th></tr></thead>
-        <tbody>
-          {% for r in readings %}
-            <tr>
-              <td>{{ r.param }}</td>
-              <td>{{ r.value if r.value is not none else 'brak danych' }}</td>
-              <td>{{ r.date or '—' }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% endif %}
+<a href="/">Powrót</a>
 </body>
 </html>
