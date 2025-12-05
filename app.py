@@ -7,10 +7,7 @@ from cachetools import TTLCache, cached
 app = Flask(__name__)
 
 # Base URLs - spróbujemy najpierw wersji v1, a jeżeli zwróci HTML/nie JSON -> spróbujemy starej
-GIOS_BASES = [
-    "https://api.gios.gov.pl/pjp-api/v1/rest",
-    "https://api.gios.gov.pl/pjp-api/rest"
-]
+GIOS_BASES = ["https://api.gios.gov.pl/pjp-api/v1/rest"]
 
 # krótkie cache w pamięci: cache 300s, max 100 itemów
 cache = TTLCache(maxsize=100, ttl=300)
