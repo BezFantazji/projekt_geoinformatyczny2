@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <title>Pomiary sensora</title>
+</head>
+<body>
+<h1>Pomiary sensora {{ sensor_id }}</h1>
+
+<ul>
+{% if data.values %}
+    {% for v in data.values %}
+        <li>{{ v.date }} — {{ v.value }}</li>
+    {% endfor %}
+{% else %}
+    <p>Brak danych</p>
+{% endif %}
+</ul>
+
+<a href="/">Powrót</a>
+</body>
+</html>
