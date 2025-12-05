@@ -1,29 +1,28 @@
+from flask import Flask, jsonify
 import requests
-from flask import Flask, render_template
 
 app = Flask(__name__)
 
-GIOS_STATIONS_URL = "https://api.gios.gov.pl/pjp-api/rest/station/findAll"
-GIOS_INDEX_URL = "https://api.gios.gov.pl/pjp-api/rest/aqindex/getIndex/{}"
+BASE_URL = "https://api.gios.gov.pl/pjp-api/rest"
 
 @app.route("/")
-def home():
-    # pobieramy listę stacji
-    stations = requests.get(GIOS_STATIONS_URL).json()
+def index():
+    return "Działa! Sprawdź /stacje lub /pomiar/ID"
 
-    data = []
-    for st in stations[:50]:  # 50 pierwszych stacji – szybciej
-        idx = requests.get(GIOS_INDEX_URL.format(st["id"])).json()
+@app.route("/stacje")
+def stacje():
+    r = requests.get(f"{BASE_URL}/station/findAll")
+    return jsonify(r.json())
 
-        data.append({
-            "city": st.get("city", {}).get("name", "Brak"),
-            "station": st["stationName"],
-            "pm10": idx.get("pm10IndexLevel", {}).get("indexLevelName"),
-            "pm25": idx.get("pm25IndexLevel", {}).get("indexLevelName"),
-            "overall": idx.get("stIndexLevel", {}).get("indexLevelName"),
-        })
+@app.route("/pomiar/<int:id>")
+def pomiar(id):
+    r = requests.get(f"{BASE_URL}/data/getData/{id}")
+    return jsonify(r.json())
 
-    return render_template("index.html", data=data)
+@app.route("/index/<int:id>")
+def indexJakosci(id):
+    r = requests.get(f"{BASE_URL}/aqindex/getIndex/{id}")
+    return jsonify(r.json())
 
 if __name__ == "__main__":
     app.run()
