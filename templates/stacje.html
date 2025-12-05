@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Stacje pomiarowe</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #fafafa; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; }
+        th { background: #0066cc; color: white; }
+        tr:hover { background: #eef5ff; }
+        a { text-decoration: none; color: #0066cc; }
+    </style>
+</head>
+<body>
+    <h1>Lista stacji pomiarowych</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nazwa</th>
+            <th>Miasto</th>
+            <th>Szczegóły</th>
+        </tr>
+
+        {% for s in stacje %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.stationName }}</td>
+            <td>{{ s.city.name if s.city else "brak danych" }}</td>
+            <td><a href="/pomiar/{{ s.id }}">Zobacz pomiary</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
