@@ -1,65 +1,38 @@
 <!doctype html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Jakość powietrza - Polska (prosty)</title>
-  <link href="https://cdn.jsdelivr.net/npm/modern-normalize/modern-normalize.css" rel="stylesheet">
-  <style>
-    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 18px; }
-    header { display:flex; align-items:center; gap:12px; }
-    .card { border:1px solid #ddd; padding:12px; border-radius:8px; margin-top:12px; }
-    select { padding:8px; font-size:1rem; }
-    .stations-list { max-height:60vh; overflow:auto; }
-    .error { color: darkred; background:#ffecec; padding:8px; border-radius:6px; }
-  </style>
+    <meta charset="utf-8">
+    <title>Jakość powietrza — Polska (live)</title>
+    <style>
+        body { font-family: Arial; padding: 30px; }
+        select, button { padding: 8px; margin: 8px; }
+        .card { padding: 15px; margin-top: 20px; background: #f5f5f5; border-radius: 8px; }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Jakość powietrza — Polska (live)</h1>
-  </header>
 
-  {% if fetch_error %}
-    <div class="error card">
-      <strong>Błąd pobierania listy stacji:</strong>
-      <pre>{{ fetch_error }}</pre>
-      <p>Sprawdź czy API GIOŚ działa i spróbuj odświeżyć. Ten projekt próbuje automatycznie użyć /v1/ lub starego /rest/.</p>
-    </div>
-  {% endif %}
+<h1>Jakość powietrza w Polsce — LIVE</h1>
 
-  <div class="card">
-    <label for="stationSelect"><strong>Wybierz stację:</strong></label>
-    <select id="stationSelect">
-      <option value="">-- wybierz --</option>
-      {% for s in stations %}
-        <option value="{{ s.id }}">{{ (s.city ~ " - ") if s.city else "" }}{{ s.name }}</option>
-      {% endfor %}
-    </select>
-    <button id="goto">Pokaż</button>
-  </div>
-
-  <div id="info" class="card" style="display:none"></div>
-
-  <hr />
-
-  <div class="card">
-    <h3>Lista stacji</h3>
-    <div class="stations-list">
-      <ul>
+<form action="" method="get">
+    <label for="station">Wybierz stację:</label>
+    <select id="station" onchange="location='/stacja/' + this.value">
+        <option value="">-- wybierz --</option>
         {% for s in stations %}
-          <li><a href="/station/{{ s.id }}">{{ (s.city ~ " - ") if s.city else "" }}{{ s.name }}</a></li>
+            <option value="{{ s.id }}">{{ s.stationName }} ({{ s.city.name }})</option>
         {% endfor %}
-      </ul>
-    </div>
-  </div>
+    </select>
+</form>
 
-<script>
-document.getElementById("goto").addEventListener("click", () => {
-  const sel = document.getElementById("stationSelect");
-  const id = sel.value;
-  if (!id) return alert("Wybierz stację");
-  window.location.href = "/station/" + id;
-});
-</script>
+<div class="card">
+    <h2>Lista stacji ({{ stations|length }})</h2>
+    <ul>
+        {% for s in stations %}
+            <li>
+                <a href="/stacja/{{ s.id }}">{{ s.stationName }} — {{ s.city.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
 </body>
 </html>
