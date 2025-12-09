@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard jakości powietrza</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>Dashboard jakości powietrza</h1>
+
+<div class="panel">
+    <div>
+        <h3>Wybierz miasta:</h3>
+        <div id="cityCheckboxes"></div>
+    </div>
+
+    <div>
+        <h3>Wybierz parametry:</h3>
+        <div id="paramCheckboxes"></div>
+    </div>
+
+    <div>
+        <h3>Zakres dat:</h3>
+        <label>Od:</label>
+        <input type="date" id="startDate"><br><br>
+        <label>Do:</label>
+        <input type="date" id="endDate">
+    </div>
+</div>
+
+<button id="generateBtn">Generuj wykres</button>
+
+<h2>Wykres</h2>
+<canvas id="chart"></canvas>
+
+<h2>Statystyki</h2>
+<table id="statsTable">
+    <tr>
+        <th>Miasto – Parametr</th>
+        <th>Min</th>
+        <th>Max</th>
+        <th>Średnia</th>
+        <th>Liczba dni</th>
+    </tr>
+</table>
+
+<script>
+let chart = null;
+let colorIndex = 0;
+
+function generateColor() {
+    const hue = (colorIndex * 47) % 360;
+    colorIndex++;
+    return `hsl(${hue}, 70%, 50%)`;
+}
+
+async function loadCheckboxes() {
+    const [citiesRes, paramsRes] = await Promise.all([
+        fetch("/api/cities"),
+        fetch("/api/pollutants")
+    ]);
+
+    const cities = await citiesRes.json();
+    const params = await paramsRes.json();
+
+    const cityDiv = document.getElementById("cityCheckboxes");
+    cities.forEach(city => {
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = city;
+        label.appendChild(checkbox);
+        label.append(" " + city);
+        cityDiv.appendChild(label);
+        cityDiv.appendChild(document.createElement("br"));
+    });
+
+    const paramDiv = document.getElementById("paramCheckboxes");
+    params.forEach(p => {
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = p;
+        label.appendChild(checkbox);
+        label.append(" " + p);
+        paramDiv.appendChild(label);
+        paramDiv.appendChild(document.createElement("br"));
+    });
+}
+
+async function loadMatrixChart() {
+    colorIndex = 0;
+
+    const selectedCities = [...document.querySelectorAll("#cityCheckboxes input:checked")].map(cb => cb.value);
+    const selectedParams = [...document.querySelectorAll("#paramCheckboxes input:checked")].map(cb => cb.value);
+
+    const start = document.getElementById("startDate").value;
+    const end = document.getElementById("endDate").value;
+
+    if (selectedCities.length === 0 || selectedParams.length === 0) {
+        alert("Wybierz przynajmniej jedno miasto i jeden parametr.");
+        return;
+    }
+
+    const res = await fetch("/api/matrix", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({cities: selectedCities, pollutants: selectedParams})
+    });
+
+    const rows = await res.json();
+
+    if (rows.length === 0) {
+        alert("Brak danych dla wybranych miast i parametrów.");
+        return;
+    }
+
+    const filteredRows = rows.filter(r => {
+        const date = r[2];
+        return (!start || date >= start) && (!end || date <= end);
+    });
+
+    if (filteredRows.length === 0) {
+        alert("Brak danych w wybranym zakresie dat.");
+        return;
+    }
+
+    const grouped = {};
+    for (const [city, param, date, value] of filteredRows) {
+        const key = `${city} – ${param}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push({date, value});
+    }
+
+    const labels = [...new Set(filteredRows.map(r => r[2]))];
+
+    const datasets = Object.keys(grouped).map(label => ({
+        label,
+        data: grouped[label].map(e => e.value),
+        borderColor: generateColor(),
+        borderWidth: 2,
+        fill: false
+    }));
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(document.getElementById("chart"), {
+        type: "line",
+        data: {labels, datasets},
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: "bottom",
+                    labels: {
+                        font: { size: 12 },
+                        usePointStyle: true,
+                        pointStyle: "line"
+                    }
+                },
+                tooltip: {
+                    mode: "index",
+                    intersect: false
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: "Data (miesiące)"
+                    },
+                    ticks: {
+                        callback: function(value, index, ticks) {
+                            const rawDate = this.getLabelForValue(value);
+                            const month = new Date(rawDate).toLocaleString("pl-PL", { month: "short" });
+                            return month;
+                        },
+                        autoSkip: true,
+                        maxTicksLimit: 12
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: "Stężenie [µg/m³]"
+                    },
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }
+            },
+            interaction: {
+                mode: "nearest",
+                intersect: false
+            }
+        }
+    });
+
+    // Wypełnij tabelę statystyk
+    const statsTable = document.getElementById("statsTable");
+    statsTable.innerHTML = `
+        <tr>
+            <th>Miasto – Parametr</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Średnia</th>
+            <th>Liczba dni</th>
+        </tr>`;
+
+    for (const city of selectedCities) {
+        for (const param of selectedParams) {
+            const sRes = await fetch(`/api/stats/${city}/${param}`);
+            const s = await sRes.json();
+
+            statsTable.innerHTML += `
+                <tr>
+                    <td>${city} – ${param}</td>
+                    <td>${s.min?.toFixed(1) || "-"}</td>
+                    <td>${s.max?.toFixed(1) || "-"}</td>
+                    <td>${s.avg?.toFixed(1) || "-"}</td>
+                    <td>${s.days}</td>
+                </tr>`;
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadCheckboxes();
+    document.getElementById("generateBtn").onclick = loadMatrixChart;
+});
+</script>
+
+</body>
+</html>

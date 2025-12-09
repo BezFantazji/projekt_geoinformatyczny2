@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1000 1100"
+     stroke="#000" stroke-width="2" fill="#dcdcdc">
+
+<!-- Zachodniopomorskie -->
+<path id="zachodniopomorskie" d="M214 216 L310 170 L380 210 L360 290 L280 310 L230 270 Z"/>
+
+<!-- Pomorskie -->
+<path id="pomorskie" d="M380 210 L470 180 L540 220 L520 290 L440 310 L360 290 Z"/>
+
+<!-- Warminsko-Mazurskie -->
+<path id="warminsko-mazurskie" d="M520 290 L600 260 L660 300 L640 360 L560 380 L500 330 Z"/>
+
+<!-- Podlaskie -->
+<path id="podlaskie" d="M660 300 L730 290 L770 350 L740 420 L660 400 L640 360 Z"/>
+
+<!-- Kujawsko-Pomorskie -->
+<path id="kujawsko-pomorskie" d="M440 310 L520 290 L560 380 L500 430 L430 420 L400 360 Z"/>
+
+<!-- Wielkopolskie -->
+<path id="wielkopolskie" d="M310 350 L400 360 L430 420 L380 480 L300 470 L260 420 Z"/>
+
+<!-- Lubuskie -->
+<path id="lubuskie" d="M214 350 L260 330 L300 350 L260 420 L210 410 L180 370 Z"/>
+
+<!-- Dolnoslaskie -->
+<path id="dolnoslaskie" d="M260 420 L300 470 L340 520 L300 580 L220 560 L200 500 Z"/>
+
+<!-- Opolskie -->
+<path id="opolskie" d="M340 520 L380 480 L430 500 L420 560 L360 580 L320 560 Z"/>
+
+<!-- Slaskie -->
+<path id="slaskie" d="M420 560 L470 540 L520 580 L480 640 L420 630 L360 580 Z"/>
+
+<!-- Lodzkie -->
+<path id="lodzkie" d="M430 420 L500 430 L540 480 L500 520 L430 500 L380 480 Z"/>
+
+<!-- Mazowieckie -->
+<path id="mazowieckie" d="M500 430 L560 380 L660 400 L690 460 L630 520 L540 480 Z"/>
+
+<!-- Swietokrzyskie -->
+<path id="swietokrzyskie" d="M540 480 L630 520 L600 580 L520 580 L470 540 L500 520 Z"/>
+
+<!-- Lubelskie -->
+<path id="lubelskie" d="M630 520 L690 460 L760 480 L770 550 L700 600 L630 580 Z"/>
+
+<!-- Podkarpackie -->
+<path id="podkarpackie" d="M600 580 L700 600 L720 680 L660 720 L580 680 L560 630 Z"/>
+
+<!-- Malopolskie -->
+<path id="malopolskie" d="M520 580 L580 630 L560 680 L480 690 L430 640 L480 640 Z"/>
+
+</svg>
