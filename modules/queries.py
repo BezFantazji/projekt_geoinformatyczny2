@@ -3,7 +3,7 @@ import os
 from modules.station_names import station_to_city, CITY_DEFS
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DB_PATH = os.path.join(BASE_DIR, "db", "air.db")
+DB_PATH = os.path.join(BASE_DIR, "modules", "air.db")
 
 
 def query(sql, params=()):
