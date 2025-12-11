@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DB_PATH = os.path.join(BASE_DIR, "modules", "air.db")
+DB_PATH = os.path.join(BASE_DIR, "air.db")
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
 CITY_FILTERS = [
